@@ -1,10 +1,13 @@
-# Szmelc-Organizer
-Simple Python3 file sorter in CLI
+# [Szmelc-Organizer]
+## Simple file sorter & organizer written in Python3 [CLI]
+
+<img src="https://i.imgur.com/kbGY8cK.png" alt="image" width="640" height="320">
+
+> Addon for [SZMELC COMMANDER]
 
 ### FILES
 > `sorter.py` - Main sorting script\
 > `config.yml` - YAML config file (specify file extensions / source & target paths)\
-> [SZMELC COMMANDER SUPPORT COMING SOON]
 
 ### MISC
 Default configuration will create `Sorted` folder tree inside script's directory\
