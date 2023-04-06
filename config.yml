@@ -1,11 +1,20 @@
 # SZMELC.INC LIMITED
 # Szmelc Sorter configuration file
-source_directory: /media/SilverX/BOX/HOME-april-2023/
+# CONFIG.YML MK III - Now with excluded & multiple source dirs support!
+# CAUTION!
+# "~/x/" source path & excluding its subdirectory "~/x/y/" will error out
+
+# Directories to exclude from script process
+excluded_directories:
+  - /media/SilverX/BOX/eee/e/
+# Directories to run script in
+source_directories:
+  - /media/SilverX/BOX/eee/b/
+  - /media/SilverX/BOX/eer/
 
 # Dictionary of supported file formats & target paths
 # Target path is relative to script path by default
 formats:
-
   # IMAGES
   - .png
   - .jpeg
@@ -35,6 +44,7 @@ formats:
   - .man
   - .info
   - .save
+  - .MF
   # CONFIGS
   - .yml
   - .json
@@ -46,6 +56,7 @@ formats:
   - .zip
   - .rar
   - .gz
+  - .xz
   - .jar
   - .pak
   # VIDEO
@@ -71,6 +82,10 @@ formats:
   - .ps1
   - .psm1
   - .psd1
+  - .lua
+  - .c
+  - .java
+  - .class
   # WINDOZE
   - .exe
   - .dll
@@ -100,10 +115,8 @@ formats:
   - .gitkeep
   - .gitignore
   - .git
-
 # Assigned file format to target path
 #################################
-
 # IMAGES
 .png: Sorted/images
 .jpeg: Sorted/images
@@ -133,6 +146,7 @@ formats:
 .man: Sorted/documents/MANUAL
 .info: Sorted/documents/info
 .save: Sorted/documents/save
+.MF: Sorted/documents/MANIFEST
 # CONFIGS
 .yml: Sorted/Scripts/Configs/Yaml
 .json: Sorted/Scripts/Configs/Json
@@ -161,12 +175,17 @@ formats:
 .sh: Sorted/Scripts/Shell
 .py: Sorted/Scripts/Python
 .ps1: Sorted/Scripts/Powershell
-.psm1: Sorted/Scripts/Powershell
-.psd1: Sorted/Scripts/Powershell
+.psm1: Sorted/Scripts/Powershell/Stuff
+.psd1: Sorted/Scripts/Powershell/Stuff
+.lua: Sorted/Scripts/Lua
+.c: Sorted/Scripts/C
+.java: Sorted/Scripts/Java
+.class: Sorted/Scripts/Java/Class
 # ARCHIVES
 .zip: Sorted/archives
 .rar: Sorted/archives
 .gz: Sorted/archives
+.xz: Sorted/archives
 .jar: Sorted/archives/jar
 .pak: Sorted/archives
 # WINDOZE
@@ -199,8 +218,7 @@ formats:
 .gitignore: Sorted/Misc/GIT
 .git: Sorted/Misc/GIT
 #################################
-
 # Special rules [TO DO]
 special_rules:
-  .js: Sorted/Scripts/Macros
-  .py: Sorted/Scripts/Macros
+  - ['.jpg', 'special_directory', './special_files']
+  - ['.py', 'special_directory', './special_files']
