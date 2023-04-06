@@ -7,16 +7,21 @@ config_path = os.path.join(os.path.dirname(__file__), 'config.yml')
 with open(config_path, 'r') as config_file:
     config = yaml.safe_load(config_file)
 
-# Get source directory from config
-source_dir = config.get('source_directory')
+# Get source directories from config
+source_dirs = config.get('source_directories')
+if not source_dirs:
+    print("Source directories not specified in config.yml.")
+    exit(1)
 
-if not source_dir:
-    print("Source directory not specified in config.yml.")
+# Get excluded directories from config
+excluded_dirs = config.get('excluded_directories', [])
+if not excluded_dirs:
+    print("Excluded directories not specified in config.yml.")
     exit(1)
 
 # Create target directories if they don't exist
 for file_format, target_dir in config.items():
-    if file_format != 'source_directory' and isinstance(target_dir, str):
+    if file_format not in ['source_directories', 'special_rules', 'excluded_directories'] and isinstance(target_dir, str):
         target_path = os.path.join(os.path.dirname(__file__), target_dir)
         if not os.path.exists(target_path):
             os.makedirs(target_path)
@@ -39,11 +44,17 @@ log = []
 # Supported file formats and target directories from config
 supported_formats = config.get('formats', [])
 target_dirs = config
-special_rules = config.get('special_rules', {})
 
 # Function to search for files in directory and its subdirectories
 def search_files(directory):
+    # Skip processing directory if it's excluded
+    if directory in excluded_dirs:
+        log.append(f"Skipping excluded directory: {directory}")
+        return
+
     for dirpath, dirnames, filenames in os.walk(directory):
+        # Exclude excluded directories
+        dirnames[:] = [d for d in dirnames if d not in excluded_dirs]
         for filename in filenames:
             file_path = os.path.join(dirpath, filename)
             file_format = os.path.splitext(filename)[1]
@@ -57,20 +68,37 @@ def search_files(directory):
                     shutil.move(file_path, target_path)
                     log.append(f"Moved {filename} to {target_path}")
                 else:
-                    log.append(f"No target directory specified for file format: {file_format}")
+                    for rule in config.get('special_rules', []):
+                        if file_format == rule[0] and rule[1] in dirpath:
+                            target_path = os.path.join(os.path.dirname(__file__), rule[2], filename)
+                            if os.path.exists(target_path):
+                                target_path = resolve_conflict(target_path)
+                                log.append(f"Resolved naming conflict: {filename} -> {target_path}")
+                            shutil.move(file_path, target_path)
+                            log.append(f"Moved {filename} to {target_path}")
+                            break
+                    else:
+                        log.append(f"No target directory specified for file format: {file_format}")
             else:
                 log.append(f"Ignored {filename} (unsupported file format)")
 
-# Search for files in source directory and its subdirectories
-search_files(source_dir)
+# Search for files in all source directories and their subdirectories
+for source_dir in source_dirs:
+    if os.path.exists(source_dir):
+        log.append(f"Searching for files in directory: {source_dir}")
+        search_files(source_dir)
+        log.append(f"Finished searching for files in directory: {source_dir}")
+    else:
+        log.append(f"Source directory not found: {source_dir}")
 
-# Delete empty directories inside source directory
-for dirpath, dirnames, filenames in os.walk(source_dir, topdown=False):
-    for dirname in dirnames:
-        dir_path = os.path.join(dirpath, dirname)
-        if not os.listdir(dir_path):
-            os.rmdir(dir_path)
-            log.append(f"Deleted empty directory: {dir_path}")
+# Delete empty directories inside source directories
+for source_dir in source_dirs:
+    for dirpath, dirnames, filenames in os.walk(source_dir, topdown=True):
+        for dirname in dirnames:
+            dir_path = os.path.join(dirpath, dirname)
+            if not os.listdir(dir_path):
+                os.rmdir(dir_path)
+                log.append(f"Deleted empty directory: {dir_path}")
 
 # Create logs folder if it doesn't exist
 logs_dir = os.path.join(os.path.dirname(__file__), 'logs')
@@ -83,9 +111,10 @@ counter = 1
 while os.path.exists(log_file_path):
     counter += 1
     log_file_path = os.path.join(logs_dir, f'log-{counter}.txt')
-
+    
 # Save log to log file
 with open(log_file_path, 'w') as log_file:
     log_file.write('\n'.join(log))
 
-print("File sorting completed.")
+os.system('cls' if os.name == 'nt' else 'clear')
+print('\n'," Operation Complete",'\n'," Runtime log saved in logs directory",'\n','\n'," SZMELC.INC - SilverX",'\n')
