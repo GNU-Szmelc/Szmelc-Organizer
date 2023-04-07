@@ -1,7 +1,7 @@
 # [Szmelc-Organizer]
 ## Simple file sorter & organizer written in Python3 [CLI]
 
-<img src="https://i.imgur.com/vKde9vM.png" alt="image" width="640" height="320">
+<img src="https://i.imgur.com/kbGY8cK.png" alt="image" width="640" height="320">
 
 > Addon for [SZMELC COMMANDER]
 
